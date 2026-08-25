@@ -8,7 +8,7 @@ class ArtShapeTests(unittest.TestCase):
     def test_every_condition_has_at_least_two_frames(self):
         for key, frames in art.ART.items():
             with self.subTest(key=key):
-                self.assertGreaterEqual(len(frames), 2, "%s cannot animate" % key)
+                self.assertGreaterEqual(len(frames), 2, f"{key} cannot animate")
 
     def test_frames_are_normalised(self):
         for key, frames in art.ART.items():

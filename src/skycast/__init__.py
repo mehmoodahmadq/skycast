@@ -10,8 +10,8 @@ from __future__ import annotations
 __version__ = "0.1.0"
 
 from .api import SkycastError, fetch, geocode, locate_by_ip
-from .models import Day, Place, Units, Weather, art_key, compass, describe
 from .layout import render, report
+from .models import Day, Place, Units, Weather, art_key, compass, describe
 
 __all__ = [
     "__version__",

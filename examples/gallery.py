@@ -33,18 +33,16 @@ def main():
     for key in sorted(art.ART):
         frames = [art.paint(key, index, painter) for index in range(len(art.ART[key]))]
         codes = codes_for(key)
-        header = "%s  %s" % (
+        header = "{}  {}".format(
             painter(key, "bold"),
-            painter("WMO %s" % ", ".join(str(code) for code in codes), "gray"),
+            painter("WMO {}".format(", ".join(str(code) for code in codes)), "gray"),
         )
         print("\n" + header)
         for row in range(art.HEIGHT):
             print(("  " + gutter.join(frame[row] for frame in frames)).rstrip())
 
-    print(
-        "\n%s conditions, %s frames total."
-        % (len(art.ART), sum(len(frames) for frames in art.ART.values()))
-    )
+    total = sum(len(frames) for frames in art.ART.values())
+    print(f"\n{len(art.ART)} conditions, {total} frames total.")
 
 
 if __name__ == "__main__":

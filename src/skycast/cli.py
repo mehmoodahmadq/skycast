@@ -8,7 +8,7 @@ import json
 import os
 import sys
 import time
-from typing import List, Optional, Sequence
+from collections.abc import Sequence
 
 from . import __version__, api, colors, layout
 from .api import SkycastError
@@ -25,7 +25,7 @@ def build_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(
         prog="skycast",
         description="Real weather, rendered as animated ASCII art.",
-        epilog="Set %s to skip typing your usual location." % ENV_LOCATION,
+        epilog=f"Set {ENV_LOCATION} to skip typing your usual location.",
     )
     parser.add_argument(
         "location",
@@ -82,11 +82,11 @@ def build_parser() -> argparse.ArgumentParser:
     color.add_argument(
         "--no-color", action="store_true", help="disable colour output"
     )
-    parser.add_argument("--version", action="version", version="skycast %s" % __version__)
+    parser.add_argument("--version", action="version", version=f"skycast {__version__}")
     return parser
 
 
-def resolve_location(args: argparse.Namespace) -> Optional[str]:
+def resolve_location(args: argparse.Namespace) -> str | None:
     if args.location:
         return " ".join(args.location).strip()
     return os.environ.get(ENV_LOCATION) or None
@@ -110,7 +110,7 @@ def _as_json(weather: Weather) -> str:
     return json.dumps(payload, indent=2, sort_keys=True)
 
 
-def _print(lines: List[str], stream) -> None:
+def _print(lines: list[str], stream) -> None:
     stream.write("\n".join(lines) + "\n")
     stream.flush()
 
@@ -119,7 +119,7 @@ def animate(
     weather: Weather,
     painter: colors.Painter,
     fps: float,
-    duration: Optional[float],
+    duration: float | None,
     show_forecast: bool,
     stream=None,
 ) -> None:
@@ -137,9 +137,9 @@ def animate(
                 weather, painter, frame=index, show_forecast=show_forecast
             )
             if height:
-                stream.write("\033[%dA" % height)
+                stream.write(f"\033[{height}A")
             stream.write(
-                "".join("%s%s\n" % (line, CLEAR_LINE) for line in lines)
+                "".join(f"{line}{CLEAR_LINE}\n" for line in lines)
             )
             stream.flush()
             height = len(lines)
@@ -155,14 +155,14 @@ def animate(
         stream.flush()
 
 
-def main(argv: Optional[Sequence[str]] = None) -> int:
+def main(argv: Sequence[str] | None = None) -> int:
     args = build_parser().parse_args(argv)
 
     location = resolve_location(args)
     if not location and not args.here:
         build_parser().print_usage(sys.stderr)
         sys.stderr.write(
-            "skycast: give a location, pass --here, or set %s\n" % ENV_LOCATION
+            f"skycast: give a location, pass --here, or set {ENV_LOCATION}\n"
         )
         return 2
 
@@ -175,7 +175,7 @@ def main(argv: Optional[Sequence[str]] = None) -> int:
             days=args.days,
         )
     except SkycastError as exc:
-        sys.stderr.write("skycast: %s\n" % exc)
+        sys.stderr.write(f"skycast: {exc}\n")
         return 1
 
     if args.json:

@@ -45,3 +45,8 @@ target-version = "py39"
 
 [tool.ruff.lint]
 select = ["E", "F", "I", "UP", "B", "SIM"]
+# SIM117 wants nested `with` blocks merged, but the readable way to do that is
+# parenthesised context managers, which need Python 3.10. The floor here is
+# 3.9, so merging would mean over-long lines or backslash continuations.
+# Revisit if the minimum ever moves to 3.10.
+ignore = ["SIM117"]

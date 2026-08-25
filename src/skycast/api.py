@@ -7,7 +7,7 @@ import re
 import urllib.error
 import urllib.parse
 import urllib.request
-from typing import Any, Dict, List, Optional
+from typing import Any
 
 from .models import Day, Place, Units, Weather
 
@@ -28,10 +28,10 @@ class SkycastError(RuntimeError):
     """Anything that stopped us producing a forecast."""
 
 
-def _get(url: str, params: Dict[str, Any], timeout: float) -> Dict[str, Any]:
+def _get(url: str, params: dict[str, Any], timeout: float) -> dict[str, Any]:
     query = urllib.parse.urlencode(params, doseq=True)
     request = urllib.request.Request(
-        "%s?%s" % (url, query) if query else url,
+        f"{url}?{query}" if query else url,
         headers={"User-Agent": USER_AGENT, "Accept": "application/json"},
     )
     try:
@@ -39,12 +39,14 @@ def _get(url: str, params: Dict[str, Any], timeout: float) -> Dict[str, Any]:
             payload = response.read().decode("utf-8")
     except urllib.error.HTTPError as exc:
         raise SkycastError(
-            "weather service returned HTTP %s" % exc.code
+            f"weather service returned HTTP {exc.code}"
         ) from exc
     except urllib.error.URLError as exc:
-        raise SkycastError("could not reach the weather service: %s" % exc.reason) from exc
+        raise SkycastError(
+            f"could not reach the weather service: {exc.reason}"
+        ) from exc
     except OSError as exc:  # timeouts, DNS, TLS
-        raise SkycastError("network error: %s" % exc) from exc
+        raise SkycastError(f"network error: {exc}") from exc
 
     try:
         return json.loads(payload)
@@ -58,8 +60,8 @@ def geocode(query: str, timeout: float = DEFAULT_TIMEOUT) -> Place:
     if match:
         lat, lon = float(match.group(1)), float(match.group(2))
         if not -90 <= lat <= 90 or not -180 <= lon <= 180:
-            raise SkycastError("coordinates out of range: %s" % query)
-        return Place(name="%.4f, %.4f" % (lat, lon), latitude=lat, longitude=lon)
+            raise SkycastError(f"coordinates out of range: {query}")
+        return Place(name=f"{lat:.4f}, {lon:.4f}", latitude=lat, longitude=lon)
 
     data = _get(
         GEOCODE_URL,
@@ -68,7 +70,7 @@ def geocode(query: str, timeout: float = DEFAULT_TIMEOUT) -> Place:
     )
     results = data.get("results") or []
     if not results:
-        raise SkycastError("no place matched %r" % query)
+        raise SkycastError(f"no place matched {query!r}")
 
     top = results[0]
     return Place(
@@ -98,8 +100,8 @@ def locate_by_ip(timeout: float = DEFAULT_TIMEOUT) -> Place:
     )
 
 
-def _forecast_params(place: Place, system: str, days: int) -> Dict[str, Any]:
-    params: Dict[str, Any] = {
+def _forecast_params(place: Place, system: str, days: int) -> dict[str, Any]:
+    params: dict[str, Any] = {
         "latitude": place.latitude,
         "longitude": place.longitude,
         "current": ",".join(
@@ -134,7 +136,7 @@ def _forecast_params(place: Place, system: str, days: int) -> Dict[str, Any]:
     return params
 
 
-def _daily(data: Dict[str, Any]) -> List[Day]:
+def _daily(data: dict[str, Any]) -> list[Day]:
     daily = data.get("daily") or {}
     dates = daily.get("time") or []
     codes = daily.get("weather_code") or []
@@ -142,7 +144,7 @@ def _daily(data: Dict[str, Any]) -> List[Day]:
     lows = daily.get("temperature_2m_min") or []
     chances = daily.get("precipitation_probability_max") or []
 
-    out: List[Day] = []
+    out: list[Day] = []
     for index, date in enumerate(dates):
         if index >= len(codes) or index >= len(highs) or index >= len(lows):
             break
@@ -162,10 +164,10 @@ def _daily(data: Dict[str, Any]) -> List[Day]:
 
 
 def fetch(
-    location: Optional[str] = None,
+    location: str | None = None,
     system: str = "metric",
     days: int = 3,
-    place: Optional[Place] = None,
+    place: Place | None = None,
     timeout: float = DEFAULT_TIMEOUT,
 ) -> Weather:
     """Fetch current conditions and a short forecast.

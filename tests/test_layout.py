@@ -70,7 +70,7 @@ class ReportTests(unittest.TestCase):
         current.forecast[1] = replace(current.forecast[1], high=100.0, low=5.0)
         rows = layout.forecast_rows(current.forecast, current, Painter(False))
         starts = {row.index("%") for row in rows}
-        self.assertEqual(len(starts), 1, "precip column drifted: %r" % rows)
+        self.assertEqual(len(starts), 1, f"precip column drifted: {rows!r}")
 
     def test_handles_weather_without_forecast(self):
         current = weather(days=0)

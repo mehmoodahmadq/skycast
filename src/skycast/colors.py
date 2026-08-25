@@ -4,7 +4,6 @@ from __future__ import annotations
 
 import os
 import sys
-from typing import Optional
 
 RESET = "\033[0m"
 
@@ -45,10 +44,10 @@ class Painter:
     def __init__(self, enabled: bool = True) -> None:
         self.enabled = enabled
 
-    def __call__(self, text: str, color: Optional[str]) -> str:
+    def __call__(self, text: str, color: str | None) -> str:
         if not self.enabled or not color:
             return text
         code = CODES.get(color, "")
         if not code:
             return text
-        return "%s%s%s" % (code, text, RESET)
+        return f"{code}{text}{RESET}"

@@ -96,10 +96,9 @@ class MainTests(unittest.TestCase):
         current = weather()
         with mock.patch.object(
             cli.api, "locate_by_ip", return_value=current.place
-        ) as locate:
-            with mock.patch.object(cli.api, "fetch", return_value=current) as fetch:
-                with mock.patch("sys.stdout", stdout):
-                    code = cli.main(["--here", "--no-color"])
+        ) as locate, mock.patch.object(cli.api, "fetch", return_value=current) as fetch:
+            with mock.patch("sys.stdout", stdout):
+                code = cli.main(["--here", "--no-color"])
         self.assertEqual(code, 0)
         locate.assert_called_once()
         self.assertIs(fetch.call_args.kwargs["place"], current.place)

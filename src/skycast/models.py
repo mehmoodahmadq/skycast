@@ -3,7 +3,6 @@
 from __future__ import annotations
 
 from dataclasses import dataclass, field
-from typing import Dict, List, Optional, Tuple
 
 # Art keys understood by ``skycast.art``. Keep this list in sync with ART.
 CLEAR = "clear"
@@ -21,7 +20,7 @@ THUNDER = "thunder"
 
 # WMO 4677 weather codes as emitted by Open-Meteo.
 # code -> (human label, day art key, night art key)
-WMO_CODES: Dict[int, Tuple[str, str, str]] = {
+WMO_CODES: dict[int, tuple[str, str, str]] = {
     0: ("Clear sky", CLEAR, CLEAR_NIGHT),
     1: ("Mainly clear", CLEAR, CLEAR_NIGHT),
     2: ("Partly cloudy", PARTLY, PARTLY_NIGHT),
@@ -84,8 +83,8 @@ class Place:
     name: str
     latitude: float
     longitude: float
-    country: Optional[str] = None
-    admin: Optional[str] = None
+    country: str | None = None
+    admin: str | None = None
 
     @property
     def label(self) -> str:
@@ -105,7 +104,7 @@ class Day:
     code: int
     high: float
     low: float
-    precip_chance: Optional[int] = None
+    precip_chance: int | None = None
 
     @property
     def summary(self) -> str:
@@ -121,7 +120,7 @@ class Units:
     precipitation: str = "mm"
 
     @classmethod
-    def for_system(cls, system: str) -> "Units":
+    def for_system(cls, system: str) -> Units:
         if system == "imperial":
             return cls(temperature="F", wind="mph", precipitation="in")
         return cls()
@@ -142,7 +141,7 @@ class Weather:
     is_day: bool
     observed_at: str
     units: Units = field(default_factory=Units)
-    forecast: List[Day] = field(default_factory=list)
+    forecast: list[Day] = field(default_factory=list)
 
     @property
     def summary(self) -> str:

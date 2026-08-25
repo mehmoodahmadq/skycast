@@ -26,7 +26,7 @@ def weather(code: int = 61, is_day: bool = True, days: int = 3) -> Weather:
         units=Units(),
         forecast=[
             Day(
-                date="2026-08-2%d" % (5 + index),
+                date=f"2026-08-{25 + index}",
                 code=61,
                 high=9.0 + index,
                 low=4.0 + index,

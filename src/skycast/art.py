@@ -14,7 +14,6 @@ matching entry to ``PALETTES``. ``tests/test_art.py`` checks the shapes line up.
 from __future__ import annotations
 
 from dataclasses import dataclass, field
-from typing import Dict, List, Optional
 
 from .models import (
     CLEAR,
@@ -31,7 +30,7 @@ from .models import (
     THUNDER,
 )
 
-Frame = List[str]
+Frame = list[str]
 
 # Every frame is padded to this many lines/columns so the layout never jitters.
 HEIGHT = 5
@@ -42,8 +41,8 @@ WIDTH = 15
 class Palette:
     """Colour plan for one condition's art."""
 
-    lines: List[str]
-    overrides: Dict[str, str] = field(default_factory=dict)
+    lines: list[str]
+    overrides: dict[str, str] = field(default_factory=dict)
 
     def line_color(self, index: int) -> str:
         if index < len(self.lines):
@@ -51,13 +50,13 @@ class Palette:
         return "default"
 
 
-def _frames(*blocks: str) -> List[Frame]:
+def _frames(*blocks: str) -> list[Frame]:
     """Turn raw art blocks into normalised frames.
 
     Only the single newline that opens a triple-quoted block is dropped, so a
     deliberate blank first line still floats the art down the panel.
     """
-    out: List[Frame] = []
+    out: list[Frame] = []
     for block in blocks:
         if block.startswith("\n"):
             block = block[1:]
@@ -67,7 +66,7 @@ def _frames(*blocks: str) -> List[Frame]:
     return out
 
 
-ART: Dict[str, List[Frame]] = {
+ART: dict[str, list[Frame]] = {
     CLEAR: _frames(
         r"""
      \   /
@@ -258,7 +257,7 @@ ART: Dict[str, List[Frame]] = {
 
 _CLOUD = ["gray"] * HEIGHT
 
-PALETTES: Dict[str, Palette] = {
+PALETTES: dict[str, Palette] = {
     CLEAR: Palette(["bright_yellow"] * HEIGHT),
     CLEAR_NIGHT: Palette(
         ["bright_yellow"] * HEIGHT,
@@ -287,7 +286,7 @@ PALETTES: Dict[str, Palette] = {
 _FALLBACK = CLOUDY
 
 
-def frames(key: str) -> List[Frame]:
+def frames(key: str) -> list[Frame]:
     """Frames for an art key, falling back to plain cloud for unknown keys."""
     return ART.get(key, ART[_FALLBACK])
 
@@ -316,16 +315,16 @@ def paint(key: str, index: int, painter) -> Frame:
 def _paint_line(
     line: str,
     base: str,
-    overrides: Dict[str, str],
+    overrides: dict[str, str],
     painter,
 ) -> str:
     """Colour a line, splitting it into runs that share a colour."""
     if not overrides:
         return painter(line, base)
 
-    parts: List[str] = []
+    parts: list[str] = []
     run = ""
-    run_color: Optional[str] = None
+    run_color: str | None = None
     for char in line:
         color = overrides.get(char, base)
         if color != run_color:
