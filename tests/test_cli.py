@@ -105,35 +105,74 @@ class MainTests(unittest.TestCase):
         self.assertIsNone(fetch.call_args.kwargs["location"])
 
 
+class FakeClock:
+    """A monotonic clock that advances a fixed step per reading.
+
+    Animation tests must not race the wall clock: on a loaded CI runner a
+    real 50ms budget can elapse during the very first frame, so the loop
+    renders once, emits no cursor-up, and the test fails for no good reason.
+    """
+
+    def __init__(self, step: float = 0.01) -> None:
+        self.now = 0.0
+        self.step = step
+        self.sleeps: list[float] = []
+
+    def monotonic(self) -> float:
+        value = self.now
+        self.now += self.step
+        return value
+
+    def sleep(self, seconds: float) -> None:
+        self.sleeps.append(seconds)
+
+
 class AnimateTests(unittest.TestCase):
-    def test_stops_after_duration_and_restores_the_cursor(self):
+    def _animate(self, clock, **kwargs):
         stream = io.StringIO()
-        cli.animate(
-            weather(),
-            Painter(enabled=False),
-            fps=100.0,
-            duration=0.0,
-            show_forecast=True,
-            stream=stream,
-        )
-        output = stream.getvalue()
+        options = {
+            "fps": 10.0,
+            "duration": 0.05,
+            "show_forecast": True,
+            "stream": stream,
+        }
+        options.update(kwargs)
+        with mock.patch.object(cli, "time", clock):
+            cli.animate(weather(), Painter(enabled=False), **options)
+        return stream.getvalue()
+
+    def test_stops_after_duration_and_restores_the_cursor(self):
+        output = self._animate(FakeClock(), duration=0.0)
         self.assertTrue(output.startswith(cli.HIDE_CURSOR))
         self.assertTrue(output.endswith(cli.SHOW_CURSOR))
         self.assertIn("Reykjavik", output)
 
+    def test_a_zero_duration_draws_exactly_one_frame(self):
+        output = self._animate(FakeClock(), duration=0.0)
+        self.assertEqual(output.count("Reykjavik"), 1)
+        self.assertNotIn("A", output, "one frame should not redraw")
+
     def test_redraws_in_place_on_later_frames(self):
-        stream = io.StringIO()
-        cli.animate(
-            weather(),
-            Painter(enabled=False),
-            fps=1000.0,
-            duration=0.05,
-            show_forecast=True,
-            stream=stream,
+        # step 0.01 against a 0.05 budget gives a deterministic five frames.
+        output = self._animate(FakeClock(step=0.01), duration=0.05)
+        self.assertEqual(output.count("Reykjavik"), 5)
+        height = len(
+            cli.layout.report(weather(), Painter(enabled=False), show_forecast=True)
         )
-        # A cursor-up sequence means frame two painted over frame one.
-        self.assertIn("\033[", stream.getvalue())
-        self.assertIn("A", stream.getvalue())
+        # Four redraws, each walking the cursor back up over the last frame.
+        self.assertEqual(output.count(f"\033[{height}A"), 4)
+
+    def test_sleeps_according_to_fps(self):
+        clock = FakeClock(step=0.01)
+        self._animate(clock, fps=4.0, duration=0.03)
+        self.assertTrue(clock.sleeps)
+        for delay in clock.sleeps:
+            self.assertAlmostEqual(delay, 0.25)
+
+    def test_zero_fps_does_not_divide_by_zero(self):
+        clock = FakeClock(step=0.01)
+        self._animate(clock, fps=0.0, duration=0.03)
+        self.assertTrue(all(delay > 0 for delay in clock.sleeps))
 
 
 if __name__ == "__main__":
