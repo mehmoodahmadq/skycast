@@ -1,7 +1,8 @@
 # skycast
 
+[![PyPI](https://img.shields.io/pypi/v/skycast)](https://pypi.org/project/skycast/)
 [![CI](https://github.com/mehmoodahmadq/skycast/actions/workflows/ci.yml/badge.svg)](https://github.com/mehmoodahmadq/skycast/actions/workflows/ci.yml)
-[![Python](https://img.shields.io/badge/python-3.9%20%E2%80%93%203.13-blue)](https://github.com/mehmoodahmadq/skycast)
+[![Python](https://img.shields.io/pypi/pyversions/skycast)](https://pypi.org/project/skycast/)
 [![License: MIT](https://img.shields.io/badge/license-MIT-green)](LICENSE)
 [![Dependencies](https://img.shields.io/badge/dependencies-none-brightgreen)](pyproject.toml)
 
@@ -66,21 +67,23 @@ skycast wants a place name.
 
 ## Install
 
-> **Not on PyPI yet.** Install from source until the first release lands.
-
 ```bash
-pip install git+https://github.com/mehmoodahmadq/skycast
+pip install skycast
 ```
 
-Or clone it:
+Run it without installing anything at all:
+
+```bash
+pipx run skycast Reykjavik
+```
+
+From source:
 
 ```bash
 git clone https://github.com/mehmoodahmadq/skycast
 cd skycast
 pip install -e .
 ```
-
-Once released, `pip install skycast` and `pipx run skycast Reykjavik` will work.
 
 **Requires Python 3.9 or newer.** That is the complete dependency list.
 
