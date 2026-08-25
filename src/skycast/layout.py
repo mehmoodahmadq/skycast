@@ -113,8 +113,18 @@ def report(
     return lines
 
 
-def render(weather: Weather, color: bool = True, frame: int = 0, **kwargs) -> str:
+def render(
+    weather: Weather,
+    color: bool = True,
+    frame: int = 0,
+    show_forecast: bool = True,
+) -> str:
     """Render a report as a single string."""
     return "\n".join(
-        report(weather, Painter(enabled=color), frame=frame, **kwargs)
+        report(
+            weather,
+            Painter(enabled=color),
+            frame=frame,
+            show_forecast=show_forecast,
+        )
     )

@@ -16,7 +16,7 @@ FORECAST_URL = "https://api.open-meteo.com/v1/forecast"
 # Only reached via the explicit --here flag; see README on what it discloses.
 IP_LOOKUP_URL = "https://ipapi.co/json/"
 
-USER_AGENT = "skycast (+https://github.com/skycast/skycast)"
+USER_AGENT = "skycast (+https://github.com/mehmoodahmadq/skycast)"
 DEFAULT_TIMEOUT = 10.0
 
 _LATLON = re.compile(
