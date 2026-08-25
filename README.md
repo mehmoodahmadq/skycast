@@ -8,22 +8,15 @@
 
 **Real weather. Animated ASCII art. Zero dependencies. No API key.**
 
-```
-  Reykjavik, Capital Region, Iceland
-
-       .-.         Moderate rain
-      (   ).       7°C  feels 3°C
-     (___(__)      wind NW 22 km/h
-     ' ' ' ' '     humidity 81%
-      ' ' ' '      precip 1.2 mm
-
-  Today 9°C/4°C    Moderate rain         60% precip
-  Wed   10°C/5°C   Overcast              20% precip
-  Thu   11°C/6°C   Partly cloudy
-```
+![skycast showing live drizzle in Manila](assets/demo.gif)
 
 The rain actually falls. The snow drifts. The sun pulses and the lightning
 flashes. Run it with `--animate`.
+
+```bash
+pip install skycast
+skycast Manila --animate
+```
 
 ---
 
@@ -554,6 +547,18 @@ the tests are plain `unittest.TestCase`, which pytest collects natively.
 ```bash
 ruff check .
 ```
+
+### Regenerating the demo GIF
+
+The README animation is generated from the real renderer, not screen-recorded,
+so it can be rebuilt after an art change:
+
+```bash
+pip install Pillow                      # needed only for this script
+python examples/make_demo_gif.py Manila --out assets/demo.gif
+```
+
+Pillow is a dev-only tool. skycast itself stays dependency-free.
 
 ### CI
 
