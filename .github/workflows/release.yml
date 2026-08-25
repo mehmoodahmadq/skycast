@@ -1,0 +1,63 @@
+name: Release
+
+on:
+  push:
+    tags: ["v*"]
+
+permissions:
+  contents: read
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Check the tag matches __version__
+        run: |
+          tag="${GITHUB_REF_NAME#v}"
+          version=$(python -c "import re,pathlib; \
+            print(re.search(r'__version__ = \"([^\"]+)\"', \
+            pathlib.Path('src/skycast/__init__.py').read_text()).group(1))")
+          echo "tag=$tag  __version__=$version"
+          if [ "$tag" != "$version" ]; then
+            echo "::error::Tag v$tag does not match __version__ $version"
+            exit 1
+          fi
+
+      - name: Run tests before shipping
+        run: python -m unittest discover -s tests -t .
+
+      - run: pip install build
+      - run: python -m build
+
+      - name: Smoke-test the built wheel
+        run: |
+          pip install dist/*.whl
+          skycast --version
+          skycast --help
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: dist
+          path: dist/
+
+  publish:
+    needs: build
+    runs-on: ubuntu-latest
+    # Requires a PyPI trusted publisher for this repo + environment.
+    # See README "Releasing" for the one-time setup.
+    environment:
+      name: pypi
+      url: https://pypi.org/p/skycast
+    permissions:
+      id-token: write
+    steps:
+      - uses: actions/download-artifact@v4
+        with:
+          name: dist
+          path: dist/
+      - uses: pypa/gh-action-pypi-publish@release/v1

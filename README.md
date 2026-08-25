@@ -1,5 +1,10 @@
 # skycast
 
+[![CI](https://github.com/mehmoodahmadq/skycast/actions/workflows/ci.yml/badge.svg)](https://github.com/mehmoodahmadq/skycast/actions/workflows/ci.yml)
+[![Python](https://img.shields.io/badge/python-3.9%20%E2%80%93%203.13-blue)](https://github.com/mehmoodahmadq/skycast)
+[![License: MIT](https://img.shields.io/badge/license-MIT-green)](LICENSE)
+[![Dependencies](https://img.shields.io/badge/dependencies-none-brightgreen)](pyproject.toml)
+
 **Real weather. Animated ASCII art. Zero dependencies. No API key.**
 
 ```
@@ -61,23 +66,21 @@ skycast wants a place name.
 
 ## Install
 
-```bash
-pip install skycast
-```
-
-Run it without installing anything at all:
+> **Not on PyPI yet.** Install from source until the first release lands.
 
 ```bash
-pipx run skycast Reykjavik
+pip install git+https://github.com/mehmoodahmadq/skycast
 ```
 
-From source:
+Or clone it:
 
 ```bash
 git clone https://github.com/mehmoodahmadq/skycast
 cd skycast
 pip install -e .
 ```
+
+Once released, `pip install skycast` and `pipx run skycast Reykjavik` will work.
 
 **Requires Python 3.9 or newer.** That is the complete dependency list.
 
@@ -554,6 +557,27 @@ ruff check .
 GitHub Actions runs the suite on Python 3.9 through 3.13, lints with Ruff, and
 builds the wheel then smoke-tests the installed `skycast` command. See
 [`.github/workflows/ci.yml`](.github/workflows/ci.yml).
+
+### Releasing
+
+Releases publish to PyPI from a git tag, using [trusted
+publishing](https://docs.pypi.org/trusted-publishers/) — no API tokens are
+stored anywhere.
+
+One-time setup on PyPI: add a trusted publisher for this repository with
+workflow `release.yml` and environment `pypi`.
+
+Then every release is:
+
+```bash
+# bump __version__ in src/skycast/__init__.py, commit, then:
+git tag v0.1.0
+git push origin v0.1.0
+```
+
+[`release.yml`](.github/workflows/release.yml) refuses to publish if the tag
+does not match `__version__`, if the tests fail, or if the built wheel does not
+run — so a mistyped tag cannot ship.
 
 ---
 
