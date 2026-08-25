@@ -24,6 +24,13 @@ class ArtShapeTests(unittest.TestCase):
                 with self.subTest(key=key):
                     "".join(frame).encode("ascii")
 
+    def test_leading_blank_lines_are_preserved(self):
+        # Overcast deliberately floats its cloud down one row; a naive
+        # strip("\n") would jam it against the top of the panel.
+        for frame in art.ART["cloudy"]:
+            self.assertEqual(frame[0].strip(), "")
+            self.assertNotEqual(frame[1].strip(), "")
+
     def test_every_condition_has_a_palette(self):
         self.assertEqual(set(art.ART), set(art.PALETTES))
 

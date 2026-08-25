@@ -52,10 +52,16 @@ class Palette:
 
 
 def _frames(*blocks: str) -> List[Frame]:
-    """Turn raw art blocks into normalised frames."""
+    """Turn raw art blocks into normalised frames.
+
+    Only the single newline that opens a triple-quoted block is dropped, so a
+    deliberate blank first line still floats the art down the panel.
+    """
     out: List[Frame] = []
     for block in blocks:
-        lines = block.strip("\n").split("\n")
+        if block.startswith("\n"):
+            block = block[1:]
+        lines = block.rstrip("\n").split("\n")
         lines = lines[:HEIGHT] + [""] * max(0, HEIGHT - len(lines))
         out.append([line.ljust(WIDTH)[:WIDTH] for line in lines])
     return out
